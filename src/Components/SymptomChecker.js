@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import Symptom from '../Symptom.mp4';
 
 const SymptomChecker = () => {
   const [symptom, setSymptom] = useState("");
@@ -23,43 +24,56 @@ const SymptomChecker = () => {
   };
 
   return (
-    <div className="max-w-md w-full mx-auto mt-6 bg-white shadow-md rounded-lg border border-gray-200 overflow-hidden">
-      <div className="p-3 border-b border-gray-300">
-        <h2 className="text-lg font-semibold text-blue-700">🩺 Symptom Checker</h2>
+    <div className="max-w-lg w-full mx-auto mt-10 bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-2xl">
+      <div className="bg-blue-50 px-6 py-4 flex flex-col items-center justify-center">
+        <video
+          src={Symptom}
+          autoPlay
+          loop
+          muted
+          className="w-40 h-40 object-cover rounded-xl shadow-md border border-blue-200"
+        />
+        <h2 className="mt-4 text-xl font-bold text-blue-800 tracking-wide">
+          🩺 Symptom Checker
+        </h2>
+        <p className="text-gray-600 text-sm text-center mt-1">
+          Get instant advice based on your health symptom.
+        </p>
       </div>
 
-      <div className="p-4">
+      <div className="p-6">
         <input
           type="text"
-          placeholder="Enter symptom..."
+          placeholder="Enter your symptom (e.g., headache, nausea)..."
           value={symptom}
           onChange={(e) => setSymptom(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleCheck()}
           disabled={loading}
-          className="w-full p-2 border rounded-md mb-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-60"
+          className="w-full p-3 border border-gray-300 rounded-lg mb-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50"
         />
 
         <button
           onClick={handleCheck}
           disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 rounded-md transition duration-200 disabled:opacity-60"
+          className={`w-full py-2 px-4 rounded-lg font-semibold text-white text-sm transition-colors duration-200 ${
+            loading || !symptom.trim()
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700"
+          }`}
         >
           {loading ? "Checking..." : "Check"}
         </button>
 
         {response && (
-          <div
-            className="mt-4 space-y-3 text-sm max-h-64 overflow-y-auto px-2"
-            style={{ wordBreak: "break-word" }}
-          >
+          <div className="mt-6 bg-gray-50 p-4 rounded-lg border border-gray-200 max-h-80 overflow-y-auto space-y-5 text-sm">
             <div>
-              <h3 className="font-semibold text-green-700">Advice:</h3>
+              <h3 className="font-semibold text-green-700 mb-1">✅ Advice:</h3>
               <p className="text-gray-800">{response.patient_message}</p>
             </div>
 
             <div>
-              <h3 className="font-semibold text-indigo-700">Relief Tips:</h3>
-              <ul className="list-disc pl-5 text-gray-700">
+              <h3 className="font-semibold text-indigo-700 mb-1">🧘‍♀️ Relief Tips:</h3>
+              <ul className="list-disc pl-5 text-gray-700 space-y-1">
                 {response.relief_tips.map((tip, i) => (
                   <li key={i}>{tip}</li>
                 ))}
@@ -67,8 +81,8 @@ const SymptomChecker = () => {
             </div>
 
             <div>
-              <h3 className="font-semibold text-yellow-700">Possible Causes:</h3>
-              <ul className="list-disc pl-5 text-gray-700">
+              <h3 className="font-semibold text-yellow-700 mb-1">🔍 Possible Causes:</h3>
+              <ul className="list-disc pl-5 text-gray-700 space-y-1">
                 {response.possible_causes.map((cause, i) => (
                   <li key={i}>{cause}</li>
                 ))}
@@ -76,17 +90,17 @@ const SymptomChecker = () => {
             </div>
 
             <div>
-              <h3 className="font-semibold text-red-700">Emergency Signs:</h3>
-              <ul className="list-disc pl-5 text-gray-700">
+              <h3 className="font-semibold text-red-700 mb-1">🚨 Emergency Signs:</h3>
+              <ul className="list-disc pl-5 text-gray-700 space-y-1">
                 {response.emergency_signs.map((sign, i) => (
                   <li key={i}>{sign}</li>
                 ))}
               </ul>
             </div>
 
-            <p className="text-gray-600">
+            <div className="pt-2 border-t text-gray-600">
               <strong>Note:</strong> {response.important_note}
-            </p>
+            </div>
           </div>
         )}
       </div>

@@ -156,22 +156,6 @@ const HomePage = () => {
                 bringing world-class medical care to every village and remote area.
               </p>
               
-              
-              {/* Trust Indicators */}
-              <div className="flex flex-wrap justify-center lg:justify-start items-center gap-8 text-gray-600 text-sm">
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-5 w-5 text-green-500" />
-                  <span>WHO Approved</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Shield className="h-5 w-5 text-green-500" />
-                  <span>HIPAA Compliant</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Award className="h-5 w-5 text-green-500" />
-                  <span>ISO Certified</span>
-                </div>
-              </div>
             </div>
             
             {/* Right Content - Healthcare Video */}

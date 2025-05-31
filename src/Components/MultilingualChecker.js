@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import Lang from '../lang.mp4'
 
 const MultilingualChecker = () => {
   const [symptom, setSymptom] = useState('');
@@ -342,10 +343,25 @@ const MultilingualChecker = () => {
 
   return (
     <div className="max-w-2xl mx-auto mt-2 p-3 bg-white rounded-lg shadow-md h-[350px] overflow-y-auto">
-      <div className="flex justify-between items-center mb-2 sticky top-0 bg-white z-10 pb-1 border-b border-gray-200">
-        <h2 className="text-lg font-bold text-blue-600">
-          🌍 Enhanced Multilingual Symptom Checker
-        </h2>
+ <div className="max-w-xs mx-auto p-2 bg-white rounded-xl shadow-md flex justify-center">
+  <video
+    src={Lang}
+    className="w-32 h-auto rounded-lg shadow-md"
+    autoPlay
+    loop
+    muted
+    playsInline
+    poster="/placeholder-healthcare.jpg"
+  />
+</div>
+
+      <div className="flex justify-between align-center items-center mb-2 sticky top-0 bg-white z-10 pb-1 border-b border-gray-200">
+       
+
+       <h2 className="text-lg font-bold text-blue-600 text-center">
+  🌍 Enhanced Multilingual Symptom Checker
+</h2>
+
         <div className="flex gap-1">
           {(isSpeaking || speechSynthesis.speaking) && (
             <button

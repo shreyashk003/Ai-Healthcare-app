@@ -210,11 +210,14 @@ app.post('/chatbot', (req, res) => {
 // Health tips
 app.get('/tips', async (req, res) => {
   try {
-    const tips = await tipsCollection.find({ tip: { $ne: null, $exists: true, $ne: "" } }).toArray();
-    res.json({ tips: tips.map(t => t.tip) });
-  } catch (err) {
-    console.error("❌ Error in GET /tips:", err);
-    res.status(500).json({ error: "Failed to get health tips" });
+    const db = getDb(); // get your db connection
+    const randomTips = await db.collection('healthTips').aggregate([{ $sample: { size: 8 } }]).toArray();
+
+    const onlyTextTips = randomTips.map(tip => tip.tipText);
+    res.json({ tips: onlyTextTips });
+  } catch (error) {
+    console.error('Failed to fetch random health tips:', error);
+    res.status(500).json({ tips: [], error: 'Failed to fetch tips' });
   }
 });
 
