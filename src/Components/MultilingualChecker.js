@@ -57,13 +57,26 @@ const MultilingualChecker = () => {
     } catch (err) {
       console.error('Diagnosis error:', err.message);
       setDiagnosis({
-        patient_message: "Based on your symptoms, this appears to be a common condition. Please consult a healthcare professional for proper diagnosis.",
-        relief_tips: ["Rest well", "Stay hydrated", "Take over-the-counter pain relief if needed"],
-        possible_causes: ["Viral infection", "Stress", "Weather changes"],
-        emergency_signs: ["High fever (>103°F)", "Difficulty breathing", "Severe chest pain"],
-        important_note: "This is not a substitute for professional medical advice.",
-        references:[""]
-      });
+  patient_emotion_empathy: "Hey there, I know you're not feeling your best right now. Based on what you shared, it sounds like something manageable. You're not alone, and we'll get through this together. 💛",
+  relief_tips: [
+    "Get some good rest — your body needs time to heal.",
+    "Drink warm fluids regularly to stay hydrated.",
+    "You can take mild pain relief if needed, but dont stress too much."
+  ],
+  possible_causes: [
+    "It might be a viral infection — quite common and usually passes.",
+    "Sometimes stress can cause these symptoms — its okay.",
+    "Weather changes can affect how you feel too."
+  ],
+  emergency_signs: [
+    "If you get a high fever over 103°F, dont wait — get help.",
+    "Trouble breathing or chest pain is serious — seek urgent care.",
+    "If anything feels suddenly worse, dont ignore it."
+  ],
+  important_note: "This is just friendly guidance. Its important to check with a real doctor for proper advice. You matter, and your health does too. 🌱",
+  references: [""]
+});
+
       setShowDiagnosis(true);
     }
   };
@@ -244,15 +257,25 @@ const MultilingualChecker = () => {
       const targetLang = getLanguageCode(language);
       const langCode = targetLang.split('-')[0];
       
-      let selectedVoice = voices.find(voice => voice.lang === targetLang) ||
-                         voices.find(voice => voice.lang.startsWith(langCode)) ||
-                         voices.find(voice => voice.lang.toLowerCase().includes(langCode));
+      // Prioritize female voices for softer tone
+      let selectedVoice = voices.find(voice => 
+        voice.lang === targetLang && voice.name.toLowerCase().includes('female')
+      ) || voices.find(voice => 
+        voice.lang.startsWith(langCode) && voice.name.toLowerCase().includes('female')
+      ) || voices.find(voice => 
+        voice.lang === targetLang
+      ) || voices.find(voice => 
+        voice.lang.startsWith(langCode)
+      ) || voices.find(voice => 
+        voice.lang.toLowerCase().includes(langCode)
+      );
 
       const msg = new SpeechSynthesisUtterance(text);
       msg.lang = targetLang;
       msg.rate = speechRate;
-      msg.pitch = 1.0;
-      msg.volume = 1.0;
+      // Adjust pitch and volume for softer, calmer voice
+      msg.pitch = 0.9; // Slightly lower pitch for calmness
+      msg.volume = 0.8; // Slightly lower volume for gentleness
       
       if (selectedVoice) {
         msg.voice = selectedVoice;
@@ -263,7 +286,7 @@ const MultilingualChecker = () => {
 
       msg.onstart = () => {
         setIsSpeaking(true);
-        setTtsStatus('🔊 Speaking...');
+        setTtsStatus('🔊 Speaking with calm voice...');
       };
       
       msg.onend = () => {
@@ -277,7 +300,29 @@ const MultilingualChecker = () => {
         console.error('Speech synthesis error:', e.error);
       };
 
-      speechSynthesis.speak(msg);
+      // Add slight pauses for better comprehension in healthcare context
+      const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+      if (sentences.length > 1) {
+        speechSynthesis.cancel();
+        sentences.forEach((sentence, i) => {
+          const utterance = new SpeechSynthesisUtterance(sentence.trim() + (i < sentences.length - 1 ? '.' : ''));
+          Object.assign(utterance, {
+            lang: msg.lang,
+            voice: msg.voice,
+            rate: msg.rate,
+            pitch: msg.pitch,
+            volume: msg.volume
+          });
+          speechSynthesis.speak(utterance);
+          // Add a small pause between sentences
+          if (i < sentences.length - 1) {
+            speechSynthesis.pause();
+            speechSynthesis.resume();
+          }
+        });
+      } else {
+        speechSynthesis.speak(msg);
+      }
     };
 
     if (speechSynthesis.getVoices().length > 0) {
@@ -569,7 +614,7 @@ const MultilingualChecker = () => {
                       onChange={(e) => setTtsOption(e.target.value)}
                       className="form-radio"
                     />
-                    <span>🌐 Browser TTS (Limited Indian language support)</span>
+                    <span>🌐 Browser TTS (Soft, calm voice)</span>
                   </label>
                   
                   <label className="flex items-center space-x-1 text-xs">
@@ -598,21 +643,24 @@ const MultilingualChecker = () => {
                 {ttsOption === 'browser' && (
                   <div className="mb-2 p-1.5 bg-white rounded border">
                     <label className="block text-xs font-semibold mb-0.5">
-                      🎛️ Speech Speed: {speechRate}x
+                      🎛️ Speech Settings (Calm & Clear)
                     </label>
-                    <input
-                      type="range"
-                      min="0.5"
-                      max="2.0"
-                      step="0.1"
-                      value={speechRate}
-                      onChange={(e) => setSpeechRate(parseFloat(e.target.value))}
-                      className="w-full"
-                    />
-                    <div className="flex justify-between text-xs text-gray-500 mt-0.5">
-                      <span>0.5x</span>
-                      <span>1.0x</span>
-                      <span>2.0x</span>
+                    <div className="mb-1">
+                      <label className="block text-xs mb-0.5">Speed: {speechRate}x</label>
+                      <input
+                        type="range"
+                        min="0.5"
+                        max="2.0"
+                        step="0.1"
+                        value={speechRate}
+                        onChange={(e) => setSpeechRate(parseFloat(e.target.value))}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-xs text-gray-500 mt-0.5">
+                        <span>0.5x</span>
+                        <span>1.0x</span>
+                        <span>2.0x</span>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -629,7 +677,7 @@ const MultilingualChecker = () => {
                     disabled={isSpeaking}
                     className="bg-purple-600 text-white px-2 py-1 rounded hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-xs"
                   >
-                    {ttsOption === 'browser' && '🔊 Start Browser TTS'}
+                    {ttsOption === 'browser' && '🔊 Speak with Calm Voice'}
                     {ttsOption === 'external' && '🌍 Open Google Translate'}
                     {ttsOption === 'copy' && '📋 Copy Text'}
                   </button>

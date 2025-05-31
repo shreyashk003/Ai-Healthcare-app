@@ -88,7 +88,7 @@ app.post('/api/diagnose', async (req, res) => {
 You are a rural health assistant. Patient says: "${symptom}". Reply in ${language}.
 Give only this JSON (no extra text):
 {
-  "patient_message": "...",
+  "patient_emotion_empathy": "...",
   "relief_tips": ["..."],
   "possible_causes": ["..."],
   "emergency_signs": ["..."],
