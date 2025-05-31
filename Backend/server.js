@@ -102,7 +102,8 @@ Respond in JSON format:
   "relief_tips": ["...", "..."],
   "possible_causes": ["...", "..."],
   "emergency_signs": ["...", "..."],
-  "important_note": "..."
+  "important_note": "...",
+  "references":["...","..."]
 }
     `;
 

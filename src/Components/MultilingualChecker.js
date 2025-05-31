@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import Lang from '../lang.mp4'
+import Lang from '../lang.mp4';
 
 const MultilingualChecker = () => {
   const [symptom, setSymptom] = useState('');
@@ -9,17 +9,29 @@ const MultilingualChecker = () => {
   const [showDiagnosis, setShowDiagnosis] = useState(true);
   const [speechSupported, setSpeechSupported] = useState(false);
   const [speechError, setSpeechError] = useState('');
-  const [ttsOption, setTtsOption] = useState('browser'); // 'browser', 'external', 'copy'
+  const [ttsOption, setTtsOption] = useState('browser');
   const [ttsStatus, setTtsStatus] = useState('');
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [speechRate, setSpeechRate] = useState(0.9); // Increased default speed
+  const [speechRate, setSpeechRate] = useState(0.9);
   const recognitionRef = useRef(null);
+  const scrollContainerRef = useRef(null);
 
   useEffect(() => {
-    // Check for speech recognition support
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     setSpeechSupported(!!SpeechRecognition);
   }, []);
+
+  // Auto-scroll to diagnosis when it appears
+  useEffect(() => {
+    if (diagnosis && scrollContainerRef.current) {
+      setTimeout(() => {
+        scrollContainerRef.current.scrollTo({
+          top: scrollContainerRef.current.scrollHeight,
+          behavior: 'smooth'
+        });
+      }, 300);
+    }
+  }, [diagnosis, showDiagnosis]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -44,13 +56,13 @@ const MultilingualChecker = () => {
       setShowDiagnosis(true);
     } catch (err) {
       console.error('Diagnosis error:', err.message);
-      // For demo purposes, set a sample diagnosis
       setDiagnosis({
         patient_message: "Based on your symptoms, this appears to be a common condition. Please consult a healthcare professional for proper diagnosis.",
         relief_tips: ["Rest well", "Stay hydrated", "Take over-the-counter pain relief if needed"],
         possible_causes: ["Viral infection", "Stress", "Weather changes"],
         emergency_signs: ["High fever (>103°F)", "Difficulty breathing", "Severe chest pain"],
-        important_note: "This is not a substitute for professional medical advice."
+        important_note: "This is not a substitute for professional medical advice.",
+        references:[""]
       });
       setShowDiagnosis(true);
     }
@@ -79,7 +91,6 @@ const MultilingualChecker = () => {
 
     setSpeechError('');
     
-    // Stop any existing recognition
     if (recognitionRef.current) {
       recognitionRef.current.stop();
     }
@@ -88,13 +99,11 @@ const MultilingualChecker = () => {
     const recognition = new SpeechRecognition();
     recognitionRef.current = recognition;
 
-    // Enhanced configuration for better multilingual support
     recognition.continuous = false;
     recognition.interimResults = true;
     recognition.maxAlternatives = 3;
     recognition.lang = getLanguageCode(language);
 
-    // Set additional properties for better accuracy
     if (recognition.serviceURI) {
       recognition.serviceURI = 'wss://speech.googleapis.com/';
     }
@@ -125,7 +134,6 @@ const MultilingualChecker = () => {
       const errorMessage = errorMessages[event.error] || `Speech recognition error: ${event.error}`;
       setSpeechError(errorMessage);
 
-      // Fallback to English if language not supported
       if (event.error === 'language-not-supported' && language !== 'en') {
         setTimeout(() => {
           setLanguage('en');
@@ -148,7 +156,6 @@ const MultilingualChecker = () => {
         }
       }
 
-      // Update the symptom field with final transcript
       if (finalTranscript) {
         setSymptom(prev => prev + ' ' + finalTranscript.trim());
       }
@@ -174,7 +181,6 @@ const MultilingualChecker = () => {
     setListening(false);
   };
 
-  // Enhanced stop speech function
   const stopSpeech = () => {
     if (speechSynthesis.speaking || speechSynthesis.pending) {
       speechSynthesis.cancel();
@@ -184,7 +190,6 @@ const MultilingualChecker = () => {
     }
   };
 
-  // Auto-stop speech when component unmounts or diagnosis changes
   useEffect(() => {
     return () => {
       if (speechSynthesis.speaking || speechSynthesis.pending) {
@@ -195,7 +200,6 @@ const MultilingualChecker = () => {
   }, []);
 
   useEffect(() => {
-    // Stop any ongoing speech when diagnosis changes
     if (speechSynthesis.speaking || speechSynthesis.pending) {
       speechSynthesis.cancel();
       setIsSpeaking(false);
@@ -231,7 +235,6 @@ const MultilingualChecker = () => {
   const browserTTS = (text) => {
     setTtsStatus('Trying browser TTS...');
     
-    // Stop any ongoing speech first
     if (speechSynthesis.speaking || speechSynthesis.pending) {
       speechSynthesis.cancel();
     }
@@ -247,7 +250,7 @@ const MultilingualChecker = () => {
 
       const msg = new SpeechSynthesisUtterance(text);
       msg.lang = targetLang;
-      msg.rate = speechRate; // Use the adjustable speech rate
+      msg.rate = speechRate;
       msg.pitch = 1.0;
       msg.volume = 1.0;
       
@@ -342,25 +345,41 @@ const MultilingualChecker = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto mt-2 p-3 bg-white rounded-lg shadow-md h-[350px] overflow-y-auto">
- <div className="max-w-xs mx-auto p-2 bg-white rounded-xl shadow-md flex justify-center">
-  <video
-    src={Lang}
-    className="w-32 h-auto rounded-lg shadow-md"
-    autoPlay
-    loop
-    muted
-    playsInline
-    poster="/placeholder-healthcare.jpg"
-  />
-</div>
+    <div 
+      className="max-w-2xl mx-auto mt-2 p-3 bg-white rounded-lg shadow-md h-[350px] overflow-y-auto"
+      ref={scrollContainerRef}
+    >
+      {scrollContainerRef.current?.scrollTop > 200 && (
+        <button
+          onClick={() => {
+            scrollContainerRef.current.scrollTo({
+              top: 0,
+              behavior: 'smooth'
+            });
+          }}
+          className="fixed bottom-4 right-4 bg-blue-600 text-white p-2 rounded-full shadow-lg hover:bg-blue-700 transition-colors z-50"
+          style={{ transform: 'translateY(0)' }}
+        >
+          ↑ Top
+        </button>
+      )}
+
+      <div className="max-w-xs mx-auto p-2 bg-white rounded-xl shadow-md flex justify-center">
+        <video
+          src={Lang}
+          className="w-32 h-auto rounded-lg shadow-md"
+          autoPlay
+          loop
+          muted
+          playsInline
+          poster="/placeholder-healthcare.jpg"
+        />
+      </div>
 
       <div className="flex justify-between align-center items-center mb-2 sticky top-0 bg-white z-10 pb-1 border-b border-gray-200">
-       
-
-       <h2 className="text-lg font-bold text-blue-600 text-center">
-  🌍 Enhanced Multilingual Symptom Checker
-</h2>
+        <h2 className="text-lg font-bold text-blue-600 text-center">
+          🌍 Enhanced Multilingual Symptom Checker
+        </h2>
 
         <div className="flex gap-1">
           {(isSpeaking || speechSynthesis.speaking) && (
@@ -576,7 +595,6 @@ const MultilingualChecker = () => {
                   </label>
                 </div>
 
-                {/* Speech Speed Control - only show for browser TTS */}
                 {ttsOption === 'browser' && (
                   <div className="mb-2 p-1.5 bg-white rounded border">
                     <label className="block text-xs font-semibold mb-0.5">
@@ -631,8 +649,22 @@ const MultilingualChecker = () => {
           )}
         </div>
       )}
+
+      {diagnosis && showDiagnosis && (
+        <button
+          onClick={() => {
+            scrollContainerRef.current.scrollTo({
+              top: scrollContainerRef.current.scrollHeight,
+              behavior: 'smooth'
+            });
+          }}
+          className="sticky bottom-2 left-0 right-0 mx-auto bg-blue-600 text-white px-3 py-1 rounded-full shadow-md text-xs hover:bg-blue-700 transition-colors"
+        >
+          ↓ See More
+        </button>
+      )}
     </div>
   );
 };
-
+ 
 export default MultilingualChecker;
