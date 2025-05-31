@@ -25,7 +25,9 @@ import {
   Send,
   Phone,
   Video,
-  Search
+  Search,
+  Globe,
+  Mic
 } from 'lucide-react';
 
 // Import your actual components here
@@ -34,6 +36,8 @@ import AppointmentForm from '../Components/AppointmentForm';
 import RecoveryTracker from '../Components/RecoveryTracker';
 import MentorChat from '../Components/MentorChat';
 import SymptomChecker from '../Components/SymptomChecker';
+import MultilingualChecker from '../Components/MultilingualChecker';
+import VoiceHealthAssistant from '../Components/VoiceHealthAssistant';
 
 // Modal Component
 const Modal = ({ isOpen, onClose, title, children, size = 'lg' }) => {
@@ -101,6 +105,18 @@ const DashboardCard = ({ icon: Icon, title, description, onClick, color = 'blue'
         hoverBg: 'group-hover:bg-red-100',
         text: 'text-red-600',
         statText: 'text-red-600'
+      },
+      indigo: {
+        bg: 'bg-indigo-50',
+        hoverBg: 'group-hover:bg-indigo-100',
+        text: 'text-indigo-600',
+        statText: 'text-indigo-600'
+      },
+      teal: {
+        bg: 'bg-teal-50',
+        hoverBg: 'group-hover:bg-teal-100',
+        text: 'text-teal-600',
+        statText: 'text-teal-600'
       }
     };
     return colorMap[colorName] || colorMap.blue;
@@ -232,7 +248,20 @@ const Dashboard = () => {
         { label: 'Checks Done', value: '7' },
         { label: 'Last Check', value: '2 days ago' }
       ]
-    }
+    },
+    {
+      id: 'multilingual',
+      title: 'Multilingual Checker',
+      description: 'Get health information in your preferred language',
+      icon: Globe,
+      color: 'indigo',
+      component: MultilingualChecker,
+      stats: [
+        { label: 'Languages', value: '8+' },
+        { label: 'Translations', value: '45' }
+      ]
+    },
+    
   ];
 
   const openModal = (componentId) => {

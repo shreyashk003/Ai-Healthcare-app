@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import doctor from '../video.mp4';
 import {
   Heart,
   Stethoscope,
@@ -133,48 +134,77 @@ const HomePage = () => {
       </nav>
 
       {/* Hero Section */}
-      <section id="home" className="text-center py-32 px-6 relative overflow-hidden bg-gradient-to-br from-green-100 to-blue-100">
-        <div className="relative z-10">
-          <div className="mb-8">
-            <span className="inline-block bg-green-500 text-white px-6 py-2 rounded-full text-sm font-semibold shadow-lg">
-              🚀 Revolutionizing Rural Healthcare
-            </span>
-          </div>
-          <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6 leading-tight">
-            <span className="text-green-600">
-              AI-Powered Rural
-            </span>
-            <br />
-            <span className="text-gray-800">Healthcare Revolution</span>
-          </h1>
-          <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-12 leading-relaxed">
-            Bridging the healthcare gap in rural communities with cutting-edge AI technology, 
-            bringing world-class medical care to every village and remote area.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
-            <button className="bg-green-500 text-white px-10 py-4 rounded-xl hover:scale-105 hover:bg-green-600 transition-all duration-200 shadow-xl flex items-center space-x-3 font-medium">
-              <span>Get Started Today</span>
-              <ArrowRight className="h-5 w-5" />
-            </button>
-            <button className="bg-white border-2 border-green-200 text-green-600 px-10 py-4 rounded-xl hover:bg-green-50 transition-all duration-200 shadow-lg flex items-center space-x-3 font-medium">
-              <Play className="h-5 w-5" />
-              <span>Watch Demo</span>
-            </button>
-          </div>
-          
-          {/* Trust Indicators */}
-          <div className="flex flex-wrap justify-center items-center gap-8 text-gray-600 text-sm">
-            <div className="flex items-center space-x-2">
-              <CheckCircle className="h-5 w-5 text-green-500" />
-              <span>WHO Approved</span>
+      <section id="home" className="py-32 px-6 relative overflow-hidden bg-gradient-to-br from-green-100 to-blue-100">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left Content */}
+            <div className="text-center lg:text-left relative z-10">
+              <div className="mb-8">
+                <span className="inline-block bg-green-500 text-white px-6 py-2 rounded-full text-sm font-semibold shadow-lg">
+                  🚀 Revolutionizing Rural Healthcare
+                </span>
+              </div>
+              <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+                <span className="text-green-600">
+                  AI-Powered Rural
+                </span>
+                <br />
+                <span className="text-gray-800">Healthcare Revolution</span>
+              </h1>
+              <p className="text-lg md:text-xl text-gray-600 mb-12 leading-relaxed">
+                Bridging the healthcare gap in rural communities with cutting-edge AI technology, 
+                bringing world-class medical care to every village and remote area.
+              </p>
+              
+              
+              {/* Trust Indicators */}
+              <div className="flex flex-wrap justify-center lg:justify-start items-center gap-8 text-gray-600 text-sm">
+                <div className="flex items-center space-x-2">
+                  <CheckCircle className="h-5 w-5 text-green-500" />
+                  <span>WHO Approved</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Shield className="h-5 w-5 text-green-500" />
+                  <span>HIPAA Compliant</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Award className="h-5 w-5 text-green-500" />
+                  <span>ISO Certified</span>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <Shield className="h-5 w-5 text-green-500" />
-              <span>HIPAA Compliant</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Award className="h-5 w-5 text-green-500" />
-              <span>ISO Certified</span>
+            
+            {/* Right Content - Healthcare Video */}
+            <div className="flex justify-center lg:justify-end">
+              <div className="relative">
+                <div className="bg-white p-6 rounded-3xl shadow-2xl border border-green-200 transform hover:scale-105 transition-all duration-300">
+                  <video
+                   src={doctor}
+                    className="w-full h-auto max-w-md mx-auto rounded-2xl shadow-lg"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    poster="/placeholder-healthcare.jpg"
+                  >
+                    
+                    {/* Fallback for browsers that don't support video */}
+                    <div className="w-full h-64 bg-gradient-to-br from-green-100 to-blue-100 rounded-2xl flex items-center justify-center">
+                      <div className="text-center">
+                        <Stethoscope className="h-16 w-16 text-green-500 mx-auto mb-4" />
+                        <p className="text-gray-600">Healthcare Technology</p>
+                      </div>
+                    </div>
+                  </video>
+                </div>
+                {/* Floating Elements */}
+                <div className="absolute -top-4 -right-4 bg-green-500 p-3 rounded-full shadow-lg animate-bounce">
+                  <Heart className="h-6 w-6 text-white" />
+                </div>
+                <div className="absolute -bottom-4 -left-4 bg-blue-500 p-3 rounded-full shadow-lg animate-pulse">
+                  <Stethoscope className="h-6 w-6 text-white" />
+                </div>
+              </div>
             </div>
           </div>
         </div>
