@@ -81,63 +81,66 @@ Respond with a JSON object exactly, like this:
 app.post('/api/diagnose', async (req, res) => {
   try {
     const { symptom, language } = req.body;
+    if (!symptom || !language) return res.status(400).json({ error: 'Missing symptom or language' });
 
-    // Input Validation
-    if (!symptom || !language) {
-      return res.status(400).json({ error: 'Missing symptom or language' });
-    }
-
-    console.log("✅ Received:", { symptom, language });
-
-    // Initialize Gemini model (assume this is configured elsewhere)
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
-    // Create prompt
     const prompt = `
-You are a rural health assistant. A patient says: "${symptom}".
-Advise them in simple terms in ${language} language.
-Respond in JSON format:
+You are a rural health assistant. Patient says: "${symptom}". Reply in ${language}.
+Give only this JSON (no extra text):
 {
   "patient_message": "...",
-  "relief_tips": ["...", "..."],
-  "possible_causes": ["...", "..."],
-  "emergency_signs": ["...", "..."],
+  "relief_tips": ["..."],
+  "possible_causes": ["..."],
+  "emergency_signs": ["..."],
   "important_note": "...",
-  "references":["...","..."]
+  "references": ["..."]
 }
-    `;
+    `.trim();
 
     const result = await model.generateContent(prompt);
-    const responseText = result?.response?.text();
+    const text = result?.response?.text()?.replace(/```json|```/g, '').trim();
+    const json = JSON.parse(text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1));
 
-    if (!responseText) {
-      return res.status(502).json({ error: 'No response from the AI model' });
-    }
-
-    // Strip markdown syntax like ```json
-    const cleaned = responseText.replace(/```json|```/g, '').trim();
-
-    // Try parsing JSON response
-    try {
-      const parsed = JSON.parse(cleaned);
-      return res.json(parsed);
-    } catch (parseErr) {
-      console.warn("⚠️ Initial parse failed, trying fallback...");
-      const fallbackJSON = cleaned.substring(cleaned.indexOf('{'), cleaned.lastIndexOf('}') + 1);
-      const parsed = JSON.parse(fallbackJSON);
-      return res.json(parsed);
-    }
-
+    return res.json(json);
   } catch (err) {
-    console.error("❌ Error in /api/diagnose:", err.message);
     return res.status(500).json({ error: 'Internal server error', details: err.message });
   }
 });
 
-// AI MENTOR: Concept explanation
 app.post("/ask", async (req, res) => {
   const { query } = req.body;
-  const prompt = `You are a helpful AI mentor. Explain this concept clearly: ${query}`;
+  const lowercaseQuery = query.trim().toLowerCase();
+
+  // Hard-coded short responses
+  const shortReplies = {
+    "hi": "Hello! What can I help you with?",
+    "hello": "Hi there! Got a doubt?",
+    "hey": "Hey! What would you like to know?",
+    "good morning": "Good morning! How can I assist you?",
+    "good evening": "Good evening! Need help with something?",
+    "thanks": "You're welcome!",
+    "thank you": "Glad I could help!"
+  };
+
+  // Myth Buster specific logic
+  if (lowercaseQuery.includes("myth buster") || lowercaseQuery.includes("mythbuster")) {
+    return res.send({
+      response: "Myth Buster is your AI mentor chatbot – quick, clear answers to tech questions."
+    });
+  }
+
+  // Check for direct greeting and return short message
+  if (shortReplies[lowercaseQuery]) {
+    return res.send({ response: shortReplies[lowercaseQuery] });
+  }
+
+  // Fallback for all other questions – still concise
+  const prompt = `
+You are an AI mentor. Answer the user's question briefly and clearly in less than 3 short paragraphs. 
+Avoid over-explaining. Be helpful but to-the-point.
+
+User's question: ${query}
+`.trim();
 
   try {
     const response = await axios.post(GENAI_ENDPOINT, {
